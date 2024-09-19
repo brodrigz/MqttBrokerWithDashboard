@@ -1,23 +1,54 @@
 ﻿using Microsoft.Extensions.Logging;
 using MQTTnet;
-using MQTTnet.Client.Receiving;
+using MQTTnet.Protocol;
 using MQTTnet.Server;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MqttBrokerWithDashboard.MqttBroker
 {
-    public class MqttBrokerService : IMqttServerClientConnectedHandler, IMqttServerClientDisconnectedHandler, IMqttApplicationMessageReceivedHandler, IMqttServerClientMessageQueueInterceptor
+    public class MqttBrokerService
     {
-        private readonly ILogger _log;
+        /// <summary>
+        /// Id that the sever will use when publishing messages directly.
+        /// </summary>
+        private const string ServerId = "SERVER";
 
-        public IMqttServer Server { get; set; }
+        #region Private
 
         private readonly object _thisLock = new();
 
         private List<MqttMessage> _messages = new();
+
+        private readonly ILogger Logger;
+
+        private Dictionary<string, List<MqttMessage>> _messagesByTopic = new();
+
+        private List<MqttClient> _connectedClients = new();
+
+        private InjectedMqttApplicationMessage BuildMessage(string topic, string payload, bool retain = false, MqttQualityOfServiceLevel qos = default) => BuildMessage(topic, Encoding.UTF8.GetBytes(payload), retain, qos);
+
+        private InjectedMqttApplicationMessage BuildMessage(string topic, byte[] payload, bool retain = false, MqttQualityOfServiceLevel qos = default)
+        {
+            var msg = new MqttApplicationMessageBuilder()
+              .WithTopic(topic)
+              .WithPayload(payload)
+              .WithQualityOfServiceLevel(qos)
+              .WithRetainFlag(retain)
+              .Build();
+
+            return new InjectedMqttApplicationMessage(msg)
+            {
+                SenderClientId = ServerId
+            };
+        }
+
+        #endregion Private
+
+        public MqttServer Server { get; set; }
 
         public IReadOnlyList<MqttMessage> Messages
         {
@@ -30,8 +61,6 @@ namespace MqttBrokerWithDashboard.MqttBroker
             }
         }
 
-        private Dictionary<string, List<MqttMessage>> _messagesByTopic = new();
-
         public IReadOnlyDictionary<string, List<MqttMessage>> MessagesByTopic
         {
             get
@@ -42,8 +71,6 @@ namespace MqttBrokerWithDashboard.MqttBroker
                 }
             }
         }
-
-        private List<MqttClient> _connectedClients = new();
 
         public IReadOnlyList<MqttClient> ConnectedClients
         {
@@ -56,55 +83,70 @@ namespace MqttBrokerWithDashboard.MqttBroker
             }
         }
 
-        public event Action<MqttServerClientConnectedEventArgs> OnClientConnected;
-
-        public event Action<MqttServerClientDisconnectedEventArgs> OnClientDisconnected;
-
-        public event Action<MqttApplicationMessageReceivedEventArgs> OnMessageReceived;
-
-        public MqttBrokerService(ILogger<MqttBrokerService> log) =>
-            _log = log;
-
-        Task IMqttServerClientConnectedHandler.HandleClientConnectedAsync(MqttServerClientConnectedEventArgs e)
+        public MqttBrokerService(ILogger<MqttBrokerService> log)
         {
-            lock (_thisLock) _connectedClients.Add(new MqttClient
-            {
-                TimeOfConnection = DateTime.Now,
-                ClientId = e.ClientId,
-                AllowSend = true,
-                AllowReceive = true,
-            });
+            Logger = log;
+        }
 
-            _log.LogInformation($"Client connected: {e.ClientId}");
+        #region Events
+
+        public event Action<ClientConnectedEventArgs> OnClientConnected;
+
+        public event Action<ClientDisconnectedEventArgs> OnClientDisconnected;
+
+        public event Action<InterceptingPublishEventArgs> OnMessageReceived;
+
+        public void BindServer(MqttServer mqttServer)
+        {
+            Server = mqttServer;
+            Server.ClientConnectedAsync += HandleClientConnectedAsync;
+            Server.ClientDisconnectedAsync += HandleClientDisconnectedAsync;
+            Server.InterceptingPublishAsync += HandleApplicationMessageReceivedAsync;
+        }
+
+        private Task HandleClientConnectedAsync(ClientConnectedEventArgs e)
+        {
+            lock (_thisLock)
+            {
+                _connectedClients.Add(new MqttClient
+                {
+                    TimeOfConnection = DateTime.Now,
+                    ClientId = e.ClientId,
+                    AllowSend = true,
+                    AllowReceive = true,
+                });
+            }
+
+            Logger.LogInformation($"Client connected: {e.ClientId}");
 
             OnClientConnected?.Invoke(e);
             return Task.CompletedTask;
         }
 
-        Task IMqttServerClientDisconnectedHandler.HandleClientDisconnectedAsync(MqttServerClientDisconnectedEventArgs e)
+        private Task HandleClientDisconnectedAsync(ClientDisconnectedEventArgs e)
         {
             lock (_thisLock)
             {
                 var client = _connectedClients.Find(x => x.ClientId == e.ClientId);
                 if (client == null)
                 {
-                    _log.LogError($"Unkownd client disconnected: {e.ClientId}");
+                    Logger.LogError($"Unkownd client disconnected: {e.ClientId}");
                     return Task.CompletedTask;
                 }
 
                 _connectedClients.Remove(client);
             }
 
-            _log.LogInformation($"Client disconnected: {e.ClientId}");
+            Logger.LogInformation($"Client disconnected: {e.ClientId}");
 
             OnClientDisconnected?.Invoke(e);
             return Task.CompletedTask;
         }
 
-        Task IMqttApplicationMessageReceivedHandler.HandleApplicationMessageReceivedAsync(MqttApplicationMessageReceivedEventArgs e)
+        private Task HandleApplicationMessageReceivedAsync(InterceptingPublishEventArgs e)
         {
             var topic = e.ApplicationMessage.Topic;
-            var payload = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
+            var payload = e.ApplicationMessage.ConvertPayloadToString();
 
             lock (_thisLock)
             {
@@ -126,54 +168,18 @@ namespace MqttBrokerWithDashboard.MqttBroker
                     _messagesByTopic[topic] = new List<MqttMessage> { message };
             }
 
-            _log.LogInformation($"OnMessageReceived: {topic} {payload}");
+            Logger.LogInformation($"OnMessageReceived: {topic} {payload}");
 
             OnMessageReceived?.Invoke(e);
             return Task.CompletedTask;
         }
 
-        Task IMqttServerClientMessageQueueInterceptor.InterceptClientMessageQueueEnqueueAsync(MqttClientMessageQueueInterceptorContext context)
-        {
-            // see https://github.com/chkr1011/MQTTnet/issues/1167
-            /*
-            if (!string.IsNullOrEmpty(context.SenderClientId))
-            {
-                var sender = _connectedClients.Find(x => x.ClientId == context.SenderClientId);
-                if (sender != null && !sender.AllowSend)
-                {
-                    context.AcceptEnqueue = false;
-                    return Task.CompletedTask;
-                }
-            }
+        #endregion Events
 
-            if (!string.IsNullOrEmpty(context.ReceiverClientId))
-            {
-                var receiver = _connectedClients.Find(x => x.ClientId == context.ReceiverClientId);
-                if (receiver != null && !receiver.AllowReceive)
-                {
-                    context.AcceptEnqueue = false;
-                    return Task.CompletedTask;
-                }
-            }
-            */
-            return Task.CompletedTask;
-        }
+        public async Task Publish(InjectedMqttApplicationMessage message, CancellationToken token = default) => await Server?.InjectApplicationMessage(message, token);
 
-        public void Publish(MqttApplicationMessage message) =>
-            _ = Server?.PublishAsync(message);
+        public async Task Publish(string topic, byte[] payload, bool retain = false, MqttQualityOfServiceLevel qos = default, CancellationToken token = default) => await Publish(BuildMessage(topic, payload, retain, qos), token);
 
-        public void Publish(string topic, byte[] payload, bool retain) =>
-            Publish(new MqttApplicationMessageBuilder()
-                .WithTopic(topic)
-                .WithPayload(payload)
-                .WithRetainFlag(retain)
-                .Build());
-
-        public void Publish(string topic, string payload, bool retain) =>
-            Publish(new MqttApplicationMessageBuilder()
-                .WithTopic(topic)
-                .WithPayload(payload)
-                .WithRetainFlag(retain)
-                .Build());
+        public async Task Publish(string topic, string payload, bool retain = false, MqttQualityOfServiceLevel qos = default, CancellationToken token = default) => await Publish(BuildMessage(topic, payload, retain, qos), token);
     }
 }

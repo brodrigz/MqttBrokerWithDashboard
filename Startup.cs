@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MqttBrokerWithDashboard.MqttBroker;
 using MQTTnet.AspNetCore;
-using MQTTnet.AspNetCore.Extensions;
 using MudBlazor.Services;
 
 namespace MqttBrokerWithDashboard
@@ -23,19 +22,18 @@ namespace MqttBrokerWithDashboard
         {
             services.AddRazorPages(options => options.RootDirectory = "/Pages");
             services.AddServerSideBlazor();
-
             services.AddMudServices();
 
             services.AddSingleton<MqttBrokerService>();
-            services.AddHostedMqttServerWithServices(options =>
+            services.AddHostedMqttServer(options =>
             {
-                var service = options.ServiceProvider.GetRequiredService<MqttBrokerService>();
-
-                options.WithDefaultEndpointPort(1883);
-                options.WithClientMessageQueueInterceptor(service);
+                options
+                .WithDefaultEndpoint()
+                .WithDefaultEndpointPort(1883);
             });
 
-            services.AddMqttConnectionHandler()
+            services
+                .AddMqttConnectionHandler()
                 .AddConnections()
                 .AddMqttTcpServerAdapter();
         }
@@ -48,7 +46,6 @@ namespace MqttBrokerWithDashboard
             }
 
             app.UseStaticFiles();
-
             app.UseRouting();
             app.UseEndpoints(endpoints =>
             {
@@ -60,10 +57,9 @@ namespace MqttBrokerWithDashboard
             app.UseMqttServer(server =>
             {
                 var mqttBrokerService = app.ApplicationServices.GetRequiredService<MqttBrokerService>();
-                mqttBrokerService.Server = server;
-                server.ClientConnectedHandler = mqttBrokerService;
-                server.ClientDisconnectedHandler = mqttBrokerService;
-                server.ApplicationMessageReceivedHandler = mqttBrokerService;
+
+                // Sets MQTTNet's server on our singleton and binds events
+                mqttBrokerService.BindServer(server);
             });
         }
     }

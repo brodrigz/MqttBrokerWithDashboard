@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Components;
 using MqttBrokerWithDashboard.MqttBroker;
-using MQTTnet;
 using MQTTnet.Server;
 
 namespace MqttBrokerWithDashboard.Components
@@ -41,13 +40,13 @@ namespace MqttBrokerWithDashboard.Components
             _mqtt.OnMessageReceived -= OnMessageReceived;
         }
 
-        private void OnClientConnected(MqttServerClientConnectedEventArgs e) =>
+        private void OnClientConnected(ClientConnectedEventArgs e) =>
             InvokeAsync(StateHasChanged);
 
-        private void OnClientDisconnected(MqttServerClientDisconnectedEventArgs e) =>
+        private void OnClientDisconnected(ClientDisconnectedEventArgs e) =>
             InvokeAsync(StateHasChanged);
 
-        private void OnMessageReceived(MqttApplicationMessageReceivedEventArgs e)
+        private void OnMessageReceived(InterceptingPublishEventArgs e)
         {
             if (!_isMessagesPanelExpanded)
                 _numberOfUnseenMessages++;

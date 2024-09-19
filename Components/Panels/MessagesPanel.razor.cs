@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using MqttBrokerWithDashboard.MqttBroker;
-using MQTTnet;
+using MQTTnet.Server;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +26,7 @@ namespace MqttBrokerWithDashboard.Components.Panels
             _mqtt.OnMessageReceived -= OnMessageReceived;
         }
 
-        private void OnMessageReceived(MqttApplicationMessageReceivedEventArgs e) =>
+        private void OnMessageReceived(InterceptingPublishEventArgs e) =>
             InvokeAsync(StateHasChanged);
 
         private IEnumerable<MqttMessage> GetItems()

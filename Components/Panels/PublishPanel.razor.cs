@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using MqttBrokerWithDashboard.MqttBroker;
+using System.Threading.Tasks;
 
 namespace MqttBrokerWithDashboard.Components.Panels
 {
@@ -15,6 +16,6 @@ namespace MqttBrokerWithDashboard.Components.Panels
 
         private bool IsPublishDisabled => string.IsNullOrWhiteSpace(_topic) || string.IsNullOrWhiteSpace(_payload);
 
-        private void Publish() => _mqtt.Publish(_topic, _payload, _retained);
+        private async Task Publish() => await _mqtt.Publish(_topic, _payload, _retained);
     }
 }
