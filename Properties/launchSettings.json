@@ -2,8 +2,8 @@
   "profiles": {
     "MqttBrokerDashboard": {
       "commandName": "Project",
-      "dotnetRunMessages": "true",
-      "launchBrowser": false,
+      "dotnetRunMessages": true,
+      "launchBrowser": true,
       "externalUrlConfiguration": true,
       "applicationUrl": "http://localhost:5000",
       "environmentVariables": {

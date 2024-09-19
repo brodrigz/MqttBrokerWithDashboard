@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using MqttBrokerWithDashboard.MqttBroker;
 using MQTTnet.AspNetCore;
 using MQTTnet.AspNetCore.Extensions;
+using MQTTnet.Server;
 using MudBlazor.Services;
 
 namespace MqttBrokerWithDashboard
@@ -31,11 +32,13 @@ namespace MqttBrokerWithDashboard
             {
                 var service = options.ServiceProvider.GetRequiredService<MqttBrokerService>();
 
-                options.WithoutDefaultEndpoint();
+                options.WithDefaultEndpointPort(1883);
                 options.WithClientMessageQueueInterceptor(service);
             });
-            services.AddMqttConnectionHandler();
-            services.AddConnections();
+
+            services.AddMqttConnectionHandler()
+                .AddConnections()
+                .AddMqttTcpServerAdapter();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -59,7 +62,6 @@ namespace MqttBrokerWithDashboard
             {
                 var mqttBrokerService = app.ApplicationServices.GetRequiredService<MqttBrokerService>();
                 mqttBrokerService.Server = server;
-
                 server.ClientConnectedHandler = mqttBrokerService;
                 server.ClientDisconnectedHandler = mqttBrokerService;
                 server.ApplicationMessageReceivedHandler = mqttBrokerService;

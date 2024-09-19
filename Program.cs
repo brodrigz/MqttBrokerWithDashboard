@@ -1,53 +1,37 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Karambolo.Extensions.Logging.File;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using MQTTnet.AspNetCore.Extensions;
+using Serilog;
 
 namespace MqttBrokerWithDashboard
 {
     public class Program
     {
-        public static HostConfig HostConfig { get; set; }
-
-        static IHost _host;
-
-        static CancellationTokenSource _manualResartCts;
-
         public static async Task Main(string[] args)
         {
-            HostConfig = HostConfig.LoadFromFile();
-
-        RestartHost:
-            _host = CreateHostBuilder(args).Build();
-
-            _manualResartCts = new CancellationTokenSource();
-            await _host.RunAsync(_manualResartCts.Token);
-
-            if (_manualResartCts.IsCancellationRequested)
-            {
-                System.Console.WriteLine("Restarting host ...");
-
-                _host.Dispose();
-                _host = null;
-
-                goto RestartHost;
-            }
+            await CreateHostBuilder(args).Build().RunAsync();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseKestrel(options =>
-                    {
-                        options.ListenAnyIP(HostConfig.TcpPort, l => l.UseMqtt());
-                        options.ListenAnyIP(HostConfig.HttpPort);
-                    });
-                    webBuilder.UseStartup<Startup>();
-                });
+        public static IHostBuilder CreateHostBuilder(string[] args)
+        {
+            return Host.CreateDefaultBuilder(args)
+              .ConfigureWebHostDefaults(webBuilder =>
+              {
+                  // Config log
+                  webBuilder.ConfigureLogging((ctx, builder) =>
+                  {
+                      builder.AddConfiguration(ctx.Configuration.GetSection("Logging"));
+                      builder.AddFile(o => o.RootPath = ctx.HostingEnvironment.ContentRootPath);
+                  });
 
-        public static void RestartHost() =>
-            _manualResartCts.Cancel();
+                  webBuilder.UseStartup<Startup>();
+              });
+        }
+
     }
 }
