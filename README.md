@@ -1,5 +1,6 @@
 # Changes in this fork
 
+- Upgraded to MQTTNet 4.3.7
 - Added IIS compatibility
 - Added file logging (https://github.com/adams85/filelogger)
 - Removed port configuration as that is managed by IIS
