@@ -1,3 +1,9 @@
+# Changes in this fork
+
+- Added IIS compatibility
+- Added file logging (https://github.com/adams85/filelogger)
+- Removed port configuration as that is managed by IIS
+  
 # Mqtt Broker w/ Dashboard
 
 A simple Server-side Application hosting a Mqtt Broker and Dashboard UI for real-time monitoring using [ASP.NET Blazor Server](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor) to quickly build and test custom Mqtt infrastructure.
@@ -28,17 +34,21 @@ A simple Server-side Application hosting a Mqtt Broker and Dashboard UI for real
 
 4. Access Dashboard UI in Browser: http://localhost:5000
 
-## Configuration
+## Configuration (removed in this fork)
 
-Port configuration is stored in "HostConfig.json" and loaded at startup.
+~~Port configuration is stored in "HostConfig.json" and loaded at startup.~~
 
-- Tcp Port: 1883 (regular _Mqtt over Tcp_)
-- Http Port: 5000
-   - "/"-endpoint serves Dashboard UI
-   - "/mqtt"-endpoint serves _Mqtt over Websocket_
+~~- Tcp Port: 1883 (regular _Mqtt over Tcp_)~~
+
+~~- Http Port: 5000~~
+
+~~- "/"-endpoint serves Dashboard UI~~
+   
+~~- "/mqtt"-endpoint serves _Mqtt over Websocket_~~
 
 ## Dependencies
 
 - [MQTTnet](https://github.com/chkr1011/MQTTnet) Mqtt Library that supports Mqtt over WebSockets
 - [MudBlazor](https://mudblazor.com) Material Design UI Framework for Dashboard Web Frontend
 - [Json.NET](https://www.newtonsoft.com/json) Json Library to load/save Config File
+- [Karambolo.Extensions.Logging.File](https://github.com/adams85/filelogger)  Lightweight implementation of the Microsoft.Extensions.Logging.ILoggerProvider interface for file logging
