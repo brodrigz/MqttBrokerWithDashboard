@@ -7,12 +7,13 @@ namespace MqttBrokerWithDashboard.Components
 {
     public partial class DashboardPanels : ComponentBase
     {
-        [Inject] MqttBrokerService _mqtt { get; set; }
+        [Inject] private MqttBrokerService _mqtt { get; set; }
 
-        int _numberOfUnseenMessages = 0;
+        private int _numberOfUnseenMessages = 0;
 
-        bool _isMessagesPanelExpanded;
-        bool IsMessagesPanelExpanded
+        private bool _isMessagesPanelExpanded;
+
+        private bool IsMessagesPanelExpanded
         {
             get => _isMessagesPanelExpanded;
 
@@ -40,13 +41,13 @@ namespace MqttBrokerWithDashboard.Components
             _mqtt.OnMessageReceived -= OnMessageReceived;
         }
 
-        void OnClientConnected(MqttServerClientConnectedEventArgs e) =>
+        private void OnClientConnected(MqttServerClientConnectedEventArgs e) =>
             InvokeAsync(StateHasChanged);
 
-        void OnClientDisconnected(MqttServerClientDisconnectedEventArgs e) =>
+        private void OnClientDisconnected(MqttServerClientDisconnectedEventArgs e) =>
             InvokeAsync(StateHasChanged);
 
-        void OnMessageReceived(MqttApplicationMessageReceivedEventArgs e)
+        private void OnMessageReceived(MqttApplicationMessageReceivedEventArgs e)
         {
             if (!_isMessagesPanelExpanded)
                 _numberOfUnseenMessages++;

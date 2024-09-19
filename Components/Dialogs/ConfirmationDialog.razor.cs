@@ -5,7 +5,7 @@ namespace MqttBrokerWithDashboard.Components.Dialogs
 {
     public partial class ConfirmationDialog : ComponentBase
     {
-        [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+        [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
 
         [Parameter] public string ContentText { get; set; }
 
@@ -13,8 +13,8 @@ namespace MqttBrokerWithDashboard.Components.Dialogs
 
         [Parameter] public Color Color { get; set; }
 
-        void Submit() => MudDialog.Close(DialogResult.Ok(true));
+        private void Submit() => MudDialog.Close(DialogResult.Ok(true));
 
-        void Cancel() => MudDialog.Cancel();
+        private void Cancel() => MudDialog.Cancel();
     }
 }

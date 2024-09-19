@@ -1,13 +1,13 @@
-using System;
 using Microsoft.AspNetCore.Components;
 using MqttBrokerWithDashboard.MqttBroker;
 using MQTTnet.Server;
+using System;
 
 namespace MqttBrokerWithDashboard.Components.Panels
 {
     public partial class ClientsPanel : ComponentBase, IDisposable
     {
-        [Inject] MqttBrokerService _mqtt { get; set; }
+        [Inject] private MqttBrokerService _mqtt { get; set; }
 
         protected override void OnInitialized()
         {
@@ -23,10 +23,10 @@ namespace MqttBrokerWithDashboard.Components.Panels
             _mqtt.OnClientDisconnected -= OnClientDisconnected;
         }
 
-        void OnClientConnected(MqttServerClientConnectedEventArgs e) =>
+        private void OnClientConnected(MqttServerClientConnectedEventArgs e) =>
             InvokeAsync(StateHasChanged);
 
-        void OnClientDisconnected(MqttServerClientDisconnectedEventArgs e) =>
+        private void OnClientDisconnected(MqttServerClientDisconnectedEventArgs e) =>
             InvokeAsync(StateHasChanged);
     }
 }

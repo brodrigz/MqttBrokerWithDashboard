@@ -1,19 +1,19 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.AspNetCore.Components;
 using MqttBrokerWithDashboard.MqttBroker;
 using MQTTnet;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MqttBrokerWithDashboard.Components.Panels
 {
     public partial class MessagesPanel : ComponentBase, IDisposable
     {
-        [Inject] MqttBrokerService _mqtt { get; set; }
+        [Inject] private MqttBrokerService _mqtt { get; set; }
 
-        string _searchString = "";
+        private string _searchString = "";
 
-        bool _collapseByTopic = true;
+        private bool _collapseByTopic = true;
 
         protected override void OnInitialized()
         {
@@ -26,17 +26,17 @@ namespace MqttBrokerWithDashboard.Components.Panels
             _mqtt.OnMessageReceived -= OnMessageReceived;
         }
 
-        void OnMessageReceived(MqttApplicationMessageReceivedEventArgs e) =>
+        private void OnMessageReceived(MqttApplicationMessageReceivedEventArgs e) =>
             InvokeAsync(StateHasChanged);
 
-        IEnumerable<MqttMessage> GetItems()
+        private IEnumerable<MqttMessage> GetItems()
         {
             if (_collapseByTopic)
                 return _mqtt.MessagesByTopic.Values.Select(x => x[0]);
             return _mqtt.Messages;
         }
 
-        bool FilterFunc(MqttMessage message)
+        private bool FilterFunc(MqttMessage message)
         {
             if (string.IsNullOrWhiteSpace(_searchString))
                 return true;
@@ -49,6 +49,6 @@ namespace MqttBrokerWithDashboard.Components.Panels
             return false;
         }
 
-        string GetClientId(MqttMessage message) => message.Client?.ClientId ?? "SERVER";
+        private string GetClientId(MqttMessage message) => message.Client?.ClientId ?? "SERVER";
     }
 }

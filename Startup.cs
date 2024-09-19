@@ -6,7 +6,6 @@ using Microsoft.Extensions.Hosting;
 using MqttBrokerWithDashboard.MqttBroker;
 using MQTTnet.AspNetCore;
 using MQTTnet.AspNetCore.Extensions;
-using MQTTnet.Server;
 using MudBlazor.Services;
 
 namespace MqttBrokerWithDashboard

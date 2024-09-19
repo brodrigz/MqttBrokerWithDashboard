@@ -1,5 +1,5 @@
-using System;
 using MQTTnet;
+using System;
 
 namespace MqttBrokerWithDashboard.MqttBroker
 {

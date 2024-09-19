@@ -1,12 +1,7 @@
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Karambolo.Extensions.Logging.File;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using MQTTnet.AspNetCore.Extensions;
-using Serilog;
+using System.Threading.Tasks;
 
 namespace MqttBrokerWithDashboard
 {
@@ -32,6 +27,5 @@ namespace MqttBrokerWithDashboard
                   webBuilder.UseStartup<Startup>();
               });
         }
-
     }
 }

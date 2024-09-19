@@ -1,23 +1,24 @@
 ﻿using Microsoft.Extensions.Logging;
 using MQTTnet;
+using MQTTnet.Client.Receiving;
 using MQTTnet.Server;
 using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using MQTTnet.Client.Receiving;
-using System.Collections.Generic;
 
 namespace MqttBrokerWithDashboard.MqttBroker
 {
     public class MqttBrokerService : IMqttServerClientConnectedHandler, IMqttServerClientDisconnectedHandler, IMqttApplicationMessageReceivedHandler, IMqttServerClientMessageQueueInterceptor
     {
-        readonly ILogger _log;
+        private readonly ILogger _log;
 
         public IMqttServer Server { get; set; }
 
-        readonly object _thisLock = new();
+        private readonly object _thisLock = new();
 
-        List<MqttMessage> _messages = new();
+        private List<MqttMessage> _messages = new();
+
         public IReadOnlyList<MqttMessage> Messages
         {
             get
@@ -29,7 +30,8 @@ namespace MqttBrokerWithDashboard.MqttBroker
             }
         }
 
-        Dictionary<string, List<MqttMessage>> _messagesByTopic = new();
+        private Dictionary<string, List<MqttMessage>> _messagesByTopic = new();
+
         public IReadOnlyDictionary<string, List<MqttMessage>> MessagesByTopic
         {
             get
@@ -41,7 +43,8 @@ namespace MqttBrokerWithDashboard.MqttBroker
             }
         }
 
-        List<MqttClient> _connectedClients = new();
+        private List<MqttClient> _connectedClients = new();
+
         public IReadOnlyList<MqttClient> ConnectedClients
         {
             get
@@ -53,15 +56,14 @@ namespace MqttBrokerWithDashboard.MqttBroker
             }
         }
 
-
         public event Action<MqttServerClientConnectedEventArgs> OnClientConnected;
-        public event Action<MqttServerClientDisconnectedEventArgs> OnClientDisconnected;
-        public event Action<MqttApplicationMessageReceivedEventArgs> OnMessageReceived;
 
+        public event Action<MqttServerClientDisconnectedEventArgs> OnClientDisconnected;
+
+        public event Action<MqttApplicationMessageReceivedEventArgs> OnMessageReceived;
 
         public MqttBrokerService(ILogger<MqttBrokerService> log) =>
             _log = log;
-
 
         Task IMqttServerClientConnectedHandler.HandleClientConnectedAsync(MqttServerClientConnectedEventArgs e)
         {
@@ -119,7 +121,7 @@ namespace MqttBrokerWithDashboard.MqttBroker
                 _messages.Insert(0, message);
 
                 if (_messagesByTopic.ContainsKey(topic))
-                    _messagesByTopic[topic].Insert(0,  message);
+                    _messagesByTopic[topic].Insert(0, message);
                 else
                     _messagesByTopic[topic] = new List<MqttMessage> { message };
             }
@@ -156,7 +158,6 @@ namespace MqttBrokerWithDashboard.MqttBroker
             */
             return Task.CompletedTask;
         }
-
 
         public void Publish(MqttApplicationMessage message) =>
             _ = Server?.PublishAsync(message);
