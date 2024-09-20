@@ -1,35 +1,4 @@
-<MudExpansionPanels MultiExpansion="true" >
-    <!-- Configuration Panel -->
-@*     @if (!Program.HostConfig.HideConfigPanel)
-    {
-        <MudExpansionPanel IsInitiallyExpanded="true">
-            <TitleContent>
-                <div class="d-flex">
-                    <MudIcon Icon="@Icons.Material.Filled.Build" Color="Color.Default" Class="me-4"/>
-                    <MudText><strong>Configuration</strong></MudText>
-                </div>
-            </TitleContent>
-            <ChildContent>
-                <ConfigurationPanel />
-            </ChildContent>
-        </MudExpansionPanel>
-    } *@
-
-    <!-- Clients Panel -->
-    <MudExpansionPanel>
-        <TitleContent>
-            <div class="d-flex">
-                <MudBadge Content="@_mqtt.ConnectedClients.Count" Color="Color.Primary" Overlap="true" Class="d-flex me-4">
-                    <MudIcon Icon="@Icons.Material.Filled.Group" Color="Color.Default"/>
-                </MudBadge>
-                <MudText><strong>Clients</strong></MudText>
-            </div>
-        </TitleContent>
-        <ChildContent>
-            <ClientsPanel />
-        </ChildContent>
-    </MudExpansionPanel>
-
+<MudExpansionPanels MultiExpansion="true">
     <!-- Publish Panel -->
     <MudExpansionPanel>
         <TitleContent>
@@ -43,6 +12,21 @@
         </ChildContent>
     </MudExpansionPanel>
 
+    <!-- Clients Panel -->
+    <MudExpansionPanel>
+        <TitleContent>
+            <div class="d-flex">
+                <MudBadge Content="@_mqtt.ConnectedClients.Count" Color="Color.Primary" Overlap="true" Class="d-flex me-4">
+                    <MudIcon Icon="@Icons.Material.Filled.Group" Color="Color.Default" />
+                </MudBadge>
+                <MudText><strong>Clients</strong></MudText>
+            </div>
+        </TitleContent>
+        <ChildContent>
+            <ClientsPanel />
+        </ChildContent>
+    </MudExpansionPanel>
+
     <!-- Messages Panel -->
     <MudExpansionPanel @bind-IsExpanded="IsMessagesPanelExpanded">
         <TitleContent>
@@ -52,7 +36,7 @@
                     if (!_isMessagesPanelExpanded && _numberOfUnseenMessages > 0)
                     {
                         <MudBadge Content="@numberStr" Color="Color.Primary" Overlap="true" Class="d-flex me-4">
-                            <MudIcon Icon="@Icons.Material.Filled.Email" Color="Color.Default"/>
+                            <MudIcon Icon="@Icons.Material.Filled.Email" Color="Color.Default" />
                         </MudBadge>
                     }
                     else
