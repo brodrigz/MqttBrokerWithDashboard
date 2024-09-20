@@ -1,5 +1,6 @@
 # Changes in this fork
 
+- Added dark mode
 - Upgraded to MQTTNet 4.3.7
 - Added IIS compatibility
 - Added file logging (https://github.com/adams85/filelogger)
@@ -9,7 +10,7 @@
 
 A simple Server-side Application hosting a Mqtt Broker and Dashboard UI for real-time monitoring using [ASP.NET Blazor Server](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor) to quickly build and test custom Mqtt infrastructure.
 
-![MqttBrokerWithDashboard](MqttBrokerWithDashboard.png)
+![Dashboard](https://github.com/user-attachments/assets/1945e905-582c-497c-8f41-4c3b2b4fee14)
 
 ## Run in CLI
 
@@ -43,9 +44,9 @@ A simple Server-side Application hosting a Mqtt Broker and Dashboard UI for real
 
 ~~- Http Port: 5000~~
 
-~~- "/"-endpoint serves Dashboard UI~~
+- "/"-endpoint serves Dashboard UI
    
-~~- "/mqtt"-endpoint serves _Mqtt over Websocket_~~
+- "/mqtt"-endpoint serves _Mqtt over TCP
 
 ## Dependencies
 
