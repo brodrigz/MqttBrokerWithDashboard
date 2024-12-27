@@ -1,3 +1,6 @@
+@using MQTTnet;
+@using MQTTnet.Protocol
+
 <MudGrid>
     <MudItem xs="12">
         <MudTextField @bind-Value="_topic" Immediate="true" Label="Topic" />
@@ -5,9 +8,18 @@
     <MudItem xs="12">
         <MudTextField @bind-Value="_payload" Immediate="true" Label="Payload" />
     </MudItem>
+
     <MudItem xs="12" >
-        <MudSwitch @bind-Checked="_retained" Label="Retain" Color="Color.Primary" Class="me-6"/>
+    <MudSwitch @bind-Checked="_retained" Label="Retain" Color="Color.Primary" Class="me-6"/>
+
+    <MudChipSet T="MqttQualityOfServiceLevel" @bind-SelectedValue="_qos" CheckMark SelectionMode="@SelectionMode.ToggleSelection">
+        <MudChip Color="Color.Primary" Value="MqttQualityOfServiceLevel.AtMostOnce" Default="true">QoS 0</MudChip>
+        <MudChip Color="Color.Primary" Value="MqttQualityOfServiceLevel.AtLeastOnce">QoS 1</MudChip>
+        <MudChip Color="Color.Primary" Value="MqttQualityOfServiceLevel.ExactlyOnce">QoS 2</MudChip>
+    </MudChipSet>
+
     </MudItem>
+
     <MudItem xs="12">
         <MudButton StartIcon="@Icons.Material.Filled.Send" Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" OnClick="Publish" Disabled="IsPublishDisabled">Publish</MudButton>
     </MudItem>

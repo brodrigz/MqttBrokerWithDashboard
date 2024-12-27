@@ -1,10 +1,15 @@
 # Changes in this fork
 
 - Added dark mode
+- Streamlined broker service
 - Upgraded to MQTTNet 4.3.7
 - Added IIS compatibility
-- Added file logging (https://github.com/adams85/filelogger)
 - Removed port configuration as that is managed by IIS
+- Added file logging (https://github.com/adams85/filelogger)
+- Added further telemetry to dashboard (application lifetime, disconnections, subscriptions, etc)
+- Added QoS option to publish panel
+- Fixed memory leak, max records can be configured on appsettings.json
+- Added example REST endpoint for telemetry data export
   
 # Mqtt Broker w/ Dashboard
 

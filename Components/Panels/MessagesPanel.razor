@@ -1,4 +1,6 @@
-@if (_mqtt.Messages.Count == 0)
+@using MqttBrokerWithDashboard.Models
+@using Humanizer
+@if (!_mqtt.Subscriptions.Any())
 {
     <MudPaper Class="py-8" Outlined="true">
         <MudText Align="Align.Center">No messages in list.</MudText>
@@ -6,7 +8,7 @@
 }
 else
 {
-    <MudTable T="MqttMessage" Items="GetItems()" Filter="FilterFunc" Elevation="0" Hover="true" Striped="true">
+    <MudTable T="MqttMessageModel" Items="GetItems()" Filter="FilterFunc" Elevation="0" Hover="true" Striped="true">
         <ToolBarContent>
             <div class="d-flex justify-space-between align-end" style="width: 100%;">
                 <MudSwitch @bind-Checked="_collapseByTopic" Label="Collapse by Topic" Color="Color.Primary" Class="me-8" />
@@ -15,27 +17,27 @@ else
             </div>
         </ToolBarContent>
         <HeaderContent>
-            <MudTh><MudTableSortLabel InitialDirection="SortDirection.Descending" SortBy="new Func<MqttMessage, object>(x => x.Timestamp)">Time</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel InitialDirection="SortDirection.Descending" SortBy="new  Func<MqttMessageModel, object>(x => x.Timestamp)">Time</MudTableSortLabel></MudTh>
             @if (_collapseByTopic)
             {
-                <MudTh><MudTableSortLabel SortBy="new Func<MqttMessage, object>(x => _mqtt.MessagesByTopic[x.Topic].Count)">#</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel SortBy="new Func<MqttMessageModel, object>(x => _mqtt.MessagesByTopic[x.Topic].Count())">#</MudTableSortLabel></MudTh>
             }
-            <MudTh><MudTableSortLabel SortBy="new Func<MqttMessage, object>(x => x.Topic)">Topic</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<MqttMessage, object>(x => x.Payload)">Payload</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel SortBy="new Func<MqttMessage, object>(x => GetClientId(x))">Sender</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<MqttMessageModel, object>(x => x.Topic)">Topic</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<MqttMessageModel, object>(x => x.Payload)">Payload</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<MqttMessageModel, object>(x => GetClientId(x))">Sender</MudTableSortLabel></MudTh>
         </HeaderContent>
         <RowTemplate>
             <MudTd DataLabel="Time">@context.Timestamp.ToLongTimeString()</MudTd>
             @if (_collapseByTopic)
             {
-                <MudTd DataLabel="#">@_mqtt.MessagesByTopic[context.Topic].Count</MudTd>
+                <MudTd DataLabel="#">@_mqtt.MessagesByTopic[context.Topic].Count()</MudTd>
             }
             <MudTd DataLabel="Topic">@context.Topic</MudTd>
             <MudTd DataLabel="Payload">@context.Payload</MudTd>
             <MudTd DataLabel="Sender">@GetClientId(context)</MudTd>
         </RowTemplate>
         <PagerContent>
-            <MudTablePager PageSizeOptions="new int[]{5, 10, 20}" />
+            <MudTablePager PageSizeOptions="new int[]{5, 10, 20,50,100,200,500,1000}" />
         </PagerContent>
     </MudTable>
 }

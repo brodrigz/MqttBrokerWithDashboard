@@ -1,0 +1,34 @@
+@if (!_mqtt.Subscriptions.Any())
+{
+    <MudPaper Class="py-8" Outlined="true">
+        <MudText Align="Align.Center">No subscriptions in list.</MudText>
+    </MudPaper>
+}
+else
+{
+    <MudTable T="Models.MqttSubscriptionModel" Items="GetItems()" Filter="FilterFunc" Elevation="0" Hover="true" Striped="true">
+        <ToolBarContent>
+            <div class="d-flex justify-space-between align-end" style="width: 100%;">
+                <MudSpacer />
+                <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0 flex-grow-1 ms-0 ps-0 me-8"></MudTextField>
+            </div>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh><MudTableSortLabel InitialDirection="SortDirection.Descending" SortBy="new Func<Models.MqttSubscriptionModel, object>(x => x.TimeStamp)">Time</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<Models.MqttSubscriptionModel, object>(x => x.ClientId)">Client</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<Models.MqttSubscriptionModel, object>(x => x.Action)">Action</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<Models.MqttSubscriptionModel, object>(x => x.Topic)">Topic</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<Models.MqttSubscriptionModel, object>(x => x.QoS)">QoS</MudTableSortLabel></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Time">@context.TimeStamp.ToLongTimeString()</MudTd>
+            <MudTd DataLabel="Client">@context.ClientId</MudTd>
+            <MudTd DataLabel="Action">@context.Action</MudTd>
+            <MudTd DataLabel="Topic">@context.Topic</MudTd>
+            <MudTd DataLabel="QoS">@context.QoS</MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[]{5, 10, 20,50,100,200,500,1000}" />
+        </PagerContent>
+    </MudTable>
+}

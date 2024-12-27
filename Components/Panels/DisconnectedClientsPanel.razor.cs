@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Components;
-using MqttBrokerWithDashboard.MqttBroker;
+using MqttBrokerWithDashboard.Services;
 using MQTTnet.Server;
 using System;
 
 namespace MqttBrokerWithDashboard.Components.Panels
 {
-    public partial class ClientsPanel : ComponentBase, IDisposable
+    public partial class DisconnectedClientsPanel : ComponentBase, IDisposable
     {
         [Inject] private MqttBrokerService _mqtt { get; set; }
 

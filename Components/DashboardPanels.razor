@@ -1,4 +1,33 @@
 <MudExpansionPanels MultiExpansion="true">
+    <!-- Configuration Panel -->
+    @*     @if (!Program.HostConfig.HideConfigPanel)
+    {
+    <MudExpansionPanel IsInitiallyExpanded="true">
+    <TitleContent>
+    <div class="d-flex">
+    <MudIcon Icon="@Icons.Material.Filled.Build" Color="Color.Default" Class="me-4"/>
+    <MudText><strong>Configuration</strong></MudText>
+    </div>
+    </TitleContent>
+    <ChildContent>
+    <ConfigurationPanel />
+    </ChildContent>
+    </MudExpansionPanel>
+    } *@
+
+    <!--AppInfo Panel-->
+    <MudExpansionPanel>
+        <TitleContent>
+            <div class="d-flex">
+                <MudIcon Icon="@Icons.Material.Outlined.MonitorHeart" Color="Color.Default" Class="me-4" />
+                <MudText><strong>Application Lifetime</strong></MudText>
+            </div>
+        </TitleContent>
+        <ChildContent>
+            <ApplicationInfoPanel />
+        </ChildContent>
+    </MudExpansionPanel>
+
     <!-- Publish Panel -->
     <MudExpansionPanel>
         <TitleContent>
@@ -12,18 +41,56 @@
         </ChildContent>
     </MudExpansionPanel>
 
-    <!-- Clients Panel -->
+    <!-- Connected Clients Panel -->
     <MudExpansionPanel>
         <TitleContent>
             <div class="d-flex">
-                <MudBadge Content="@_mqtt.ConnectedClients.Count" Color="Color.Primary" Overlap="true" Class="d-flex me-4">
+                <MudBadge Content="@_mqtt.ConnectedClients.Count()" Color="Color.Primary" Overlap="true" Class="d-flex me-4">
                     <MudIcon Icon="@Icons.Material.Filled.Group" Color="Color.Default" />
                 </MudBadge>
-                <MudText><strong>Clients</strong></MudText>
+                <MudText><strong>Connected Clients</strong></MudText>
             </div>
         </TitleContent>
         <ChildContent>
-            <ClientsPanel />
+            <ConnectedClientsPanel />
+        </ChildContent>
+    </MudExpansionPanel>
+
+    <!-- Disconnected Clients Panel -->
+    <MudExpansionPanel>
+        <TitleContent>
+            <div class="d-flex">
+                <MudIcon Icon="@Icons.Material.Outlined.GroupOff" Color="Color.Default" Class="me-4" />
+                <MudText><strong>Disconnected Clients</strong></MudText>
+            </div>
+        </TitleContent>
+        <ChildContent>
+            <DisconnectedClientsPanel />
+        </ChildContent>
+    </MudExpansionPanel>
+
+    <!-- Subscriptions Panel -->
+    <MudExpansionPanel @bind-IsExpanded="IsSubscriptionsPanelExpanded">
+        <TitleContent>
+            <div class="d-flex">
+                @{
+                    var numberStr = _numberOfUnseenSubscriptions > 99 ? "+99" : _numberOfUnseenSubscriptions.ToString();
+                    if (!_isSubscriptionsPanelExpanded && _numberOfUnseenSubscriptions > 0)
+                    {
+                        <MudBadge Content="@numberStr" Color="Color.Primary" Overlap="true" Class="d-flex me-4">
+                            <MudIcon Icon="@Icons.Material.Filled.Topic" Color="Color.Default" />
+                        </MudBadge>
+                    }
+                    else
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.Topic" Color="Color.Default" Class="me-4" />
+                    }
+                }
+                <MudText><strong>Subscriptions</strong></MudText>
+            </div>
+        </TitleContent>
+        <ChildContent>
+            <SubscriptionsPanel />
         </ChildContent>
     </MudExpansionPanel>
 

@@ -1,0 +1,26 @@
+@using MqttBrokerWithDashboard.Models
+@using Humanizer
+@using static MqttBrokerWithDashboard.Logging.AppLifecycleLogger
+
+<div class="metrics-section" style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+    <MudChip Color="Color.Info" Variant="Variant.Outlined">
+        Started: @AppStarted.ToLongTimeString()
+    </MudChip>
+    <MudChip Color="Color.Info" Variant="Variant.Outlined">
+        Uptime: @Uptime.Humanize()
+    </MudChip>
+</div>
+
+<MudTable T="AppLifecycleLog" Items="Logs" Elevation="0" Hover="true" Striped="true">
+    <HeaderContent>
+        <MudTh><MudTableSortLabel InitialDirection="SortDirection.Descending" SortBy="new Func<AppLifecycleLog, object>(x => x.Timestamp)">Time</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<AppLifecycleLog, object>(x => x.Event)">Event</MudTableSortLabel></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Time">@context.Timestamp.ToLongTimeString()</MudTd>
+        <MudTd DataLabel="Event">@context.Event</MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager PageSizeOptions="new int[]{5, 10, 20,50,100}" />
+    </PagerContent>
+</MudTable>

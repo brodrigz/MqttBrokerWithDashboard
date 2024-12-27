@@ -1,0 +1,26 @@
+@using MqttBrokerWithDashboard.Models
+@using Humanizer
+@if (_mqtt.DisconnectedClients.Count() == 0)
+{
+    <MudPaper Class="py-8" Outlined="true">
+        <MudText Align="Align.Center">No disconneceted clients.</MudText>
+    </MudPaper>
+}
+else
+{
+    <MudTable T="MqttClientModel" Items="_mqtt.DisconnectedClients" Striped="true" Elevation="0">
+        <HeaderContent>
+            <MudTh><MudTableSortLabel InitialDirection="SortDirection.Descending" SortBy="new Func<MqttClientModel, object>(x => x.TimeOfDisconnection)">Disconnection Time</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<MqttClientModel, object>(x => x.DisconnectCount)">Disconnection Count</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<MqttClientModel, object>(x => x.ClientId)">Id</MudTableSortLabel></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Disconnection Time">@context.TimeOfDisconnection.Value.ToLongTimeString()</MudTd>
+            <MudTd DataLabel="Disconnection Count">@context.DisconnectCount</MudTd>
+            <MudTd DataLabel="Id">@context.ClientId</MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[]{5, 10, 20,50,100,200}" />
+        </PagerContent>
+    </MudTable>
+}

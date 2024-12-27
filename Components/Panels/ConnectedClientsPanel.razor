@@ -1,0 +1,32 @@
+@using MqttBrokerWithDashboard.Models
+@using Humanizer
+@if (_mqtt.ConnectedClients.Count() == 0)
+{
+    <MudPaper Class="py-8" Outlined="true">
+        <MudText Align="Align.Center">No clients in list.</MudText>
+    </MudPaper>
+}
+else
+{
+    <MudTable T="MqttClientModel" Items="_mqtt.ConnectedClients" Striped="true" Elevation="0">
+        <HeaderContent>
+            <MudTh><MudTableSortLabel InitialDirection="SortDirection.Descending" SortBy="new Func<MqttClientModel, object>(x => x.TimeOfConnection)">Connection Time</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<MqttClientModel, object>(x => x.DisconnectCount)">Disconnection Count</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<MqttClientModel, object>(x => x.MaxDowntime)">Max Downtime</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<MqttClientModel, object>(x => x.PublishCount)">Published</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<MqttClientModel, object>(x => x.SubscribedTopics.Count())">Subscribed</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<MqttClientModel, object>(x => x.ClientId)">Id</MudTableSortLabel></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Connection Time">@context.TimeOfConnection.ToLongTimeString()</MudTd>
+            <MudTd DataLabel="Disconnection Count">@context.DisconnectCount</MudTd>
+            <MudTd DataLabel="Max Downtime">@context.MaxDowntime.Humanize()</MudTd>
+            <MudTd DataLabel="Publish">@context.PublishCount</MudTd>
+            <MudTd DataLabel="Subscriptions">@context.SubscribedTopics.Count()</MudTd>
+            <MudTd DataLabel="Id">@context.ClientId</MudTd>
+        </RowTemplate>
+        <PagerContent>
+            <MudTablePager PageSizeOptions="new int[]{5, 10, 20,50,100,200}" />
+        </PagerContent>
+    </MudTable>
+}

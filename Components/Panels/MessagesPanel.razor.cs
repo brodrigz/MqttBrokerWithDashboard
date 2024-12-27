@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Components;
-using MqttBrokerWithDashboard.MqttBroker;
+using MqttBrokerWithDashboard.Services;
 using MQTTnet.Server;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MqttBrokerWithDashboard.Models;
 
 namespace MqttBrokerWithDashboard.Components.Panels
 {
@@ -29,18 +30,18 @@ namespace MqttBrokerWithDashboard.Components.Panels
         private void OnMessageReceived(InterceptingPublishEventArgs e) =>
             InvokeAsync(StateHasChanged);
 
-        private IEnumerable<MqttMessage> GetItems()
+        private IEnumerable<MqttMessageModel> GetItems()
         {
             if (_collapseByTopic)
-                return _mqtt.MessagesByTopic.Values.Select(x => x[0]);
+                return _mqtt.MessagesByTopic.Values.Select(g => g.OrderByDescending(x=>x.Timestamp).FirstOrDefault());
             return _mqtt.Messages;
         }
 
-        private bool FilterFunc(MqttMessage message)
+        private bool FilterFunc(MqttMessageModel message)
         {
             if (string.IsNullOrWhiteSpace(_searchString))
                 return true;
-            if (message.Client != null && message.Client.ClientId.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            if (message.ClientId.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
                 return true;
             if (message.Topic != null && message.Topic.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
                 return true;
@@ -49,6 +50,6 @@ namespace MqttBrokerWithDashboard.Components.Panels
             return false;
         }
 
-        private string GetClientId(MqttMessage message) => message.Client?.ClientId ?? "SERVER";
+        private string GetClientId(MqttMessageModel message) => message?.ClientId ?? "SERVER";
     }
 }
