@@ -15,7 +15,9 @@
 
 A simple Server-side Application hosting a Mqtt Broker and Dashboard UI for real-time monitoring using [ASP.NET Blazor Server](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor) to quickly build and test custom Mqtt infrastructure.
 
-![Dashboard](https://github.com/user-attachments/assets/1945e905-582c-497c-8f41-4c3b2b4fee14)
+![Dashboard](https://github.com/user-attachments/assets/e2ca48b3-cbeb-44b1-9759-a8440074ec1a)
+
+![Information](https://github.com/user-attachments/assets/0b767d61-c682-41c8-9066-103ce56b8621)
 
 ## Run in CLI
 
